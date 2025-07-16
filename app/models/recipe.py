@@ -14,4 +14,4 @@ class Recipe(db.Model):
     updated_at = db.Column(db.Datetime, default = db.func.current_timestamp(), onupdate = db.func.current_timestamp())  
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups_id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
