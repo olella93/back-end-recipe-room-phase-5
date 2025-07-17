@@ -1,7 +1,10 @@
 from flask import Flask
 from .extensions import db, migrate, jwt, ma, bcrypt, cors
 from .config import Config
-from .routes.auth_routes import auth_bp
+from .routes import init_routes
+
+# Import models so they are available to migrations
+from .models.user import User
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +19,6 @@ def create_app():
     cors.init_app(app)
 
     # Register blueprints
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    init_routes(app)
 
     return app
