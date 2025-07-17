@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request  
 from app.models.user import User
-from app.db import db
+from app.extensions import db
 from flask_jwt_extended import create_access_token
 from app.schemas.user_schema import UserSchema
 user_schema = UserSchema()
