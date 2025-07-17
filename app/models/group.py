@@ -6,4 +6,4 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100), nullable = False)
     description = db.Column(db.Text)
-    created_at = db.Column(db.Datetime, default = db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default = db.func.current_timestamp())
