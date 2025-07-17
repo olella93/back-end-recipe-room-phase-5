@@ -8,4 +8,5 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.gotenv('DATABASE_URI', 'postgresql"//localhost/reciperoom')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CORS_HEADERS = 'Content-Type'
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-jwt-key")
     
