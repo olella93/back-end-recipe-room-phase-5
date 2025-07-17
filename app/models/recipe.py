@@ -10,8 +10,8 @@ class Recipe(db.Model):
     instructions = db.Column(db.Text, nullable = False)
     country = db.Column(db.String(50))
     serving_size = db.Column(db.Integer)
-    created_at = db.Column(db.Datetime, default = db.func.current_timestamp())
-    updated_at = db.Column(db.Datetime, default = db.func.current_timestamp(), onupdate = db.func.current_timestamp())  
+    created_at = db.Column(db.DateTime, default = db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default = db.func.current_timestamp(), onupdate = db.func.current_timestamp())  
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
