@@ -119,7 +119,7 @@ def update_recipe(recipe_id):
     recipe.country = data.get('country', recipe.country)
     recipe.image_url = data.get('image_url', recipe.image_url)
     recipe.serving_size = data.get('serving_size', recipe.serving_size)
-    # recipe.group_id = data.get('group_id', recipe.group_id)  # Uncomment if group support is ready
+    # recipe.group_id = data.get('group_id', recipe.group_id) 
 
     db.session.commit()
     return jsonify({"message": "Recipe updated successfully"}), 200
