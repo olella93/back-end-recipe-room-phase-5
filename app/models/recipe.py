@@ -17,6 +17,6 @@ class Recipe(db.Model):
     updated_at = db.Column(db.DateTime, default = db.func.current_timestamp(), onupdate = db.func.current_timestamp())  
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
+    # group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))  # Temporarily commented out
 
     user = db.relationship('User', backref='recipes')

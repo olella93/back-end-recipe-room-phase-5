@@ -38,8 +38,8 @@ def get_recipes():
             "image_url": recipe.image_url,
             "created_at": recipe.created_at,
             "updated_at": recipe.updated_at,
-            "user_id": recipe.user_id,
-            "group_id": recipe.group_id
+            "user_id": recipe.user_id
+            # "group_id": recipe.group_id  # Temporarily commented out
         })
 
     return jsonify(result), 200
@@ -63,7 +63,7 @@ def create_recipe():
             country=data.get('country'),
             image_url=data.get('image_url'),
             serving_size=data.get('serving_size'),
-            group_id=data.get('group_id'),
+            # group_id=data.get('group_id'),  # Temporarily commented out
             user_id=user_id
         )
 
