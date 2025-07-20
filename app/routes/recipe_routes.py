@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.recipe import Recipe
 from app.models.rating import Rating
-from app.db import db
+from app.extensions import db
 
 recipe_bp = Blueprint('recipe', __name__)
 
@@ -47,7 +47,7 @@ def get_recipes():
 @recipe_bp.route('/recipes', methods=['POST'])
 @jwt_required()
 def create_recipe():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # Convert string back to int
     data = request.get_json()
 
     required_fields = ['title', 'description', 'ingredients', 'instructions']

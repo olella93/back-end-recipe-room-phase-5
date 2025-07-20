@@ -2,8 +2,8 @@ from flask import Blueprint, jsonify, request
 from app.models.user import User
 from app.extensions import db
 from flask_jwt_extended import create_access_token
-from app.schemas.user_schema import UserSchema
-user_schema = UserSchema()
+# from app.schemas.user_schema import UserSchema  # Temporarily commented out
+# user_schema = UserSchema()  # Temporarily commented out
 
 
 
@@ -31,7 +31,13 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    return user_schema.jsonify(user), 201
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "profile_image": user.profile_image,
+        "created_at": user.created_at.isoformat() if user.created_at else None
+    }), 201
 
 @auth_bp.route('/login' , methods =['POST'] )
 def login():
@@ -45,9 +51,15 @@ def login():
     if not user or not user.check_password(data['password']):
         return jsonify({"error": "Incorect username or password"}), 401
     
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     return jsonify({
         "message": "Login successful",
         "token": access_token,
-        "user": user_schema.dump(user)
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "profile_image": user.profile_image,
+            "created_at": user.created_at.isoformat() if user.created_at else None
+        }
     }), 200

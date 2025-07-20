@@ -1,5 +1,4 @@
 from app.extensions import db
-from app.models.user import User
 
 class Recipe(db.Model):
     __tablename__ = 'recipes'

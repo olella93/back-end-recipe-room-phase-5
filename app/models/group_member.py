@@ -1,4 +1,4 @@
-from app.db import db
+from app.extensions import db
 
 class GroupMember(db.Model):
     __tablename__ = 'group_members'
