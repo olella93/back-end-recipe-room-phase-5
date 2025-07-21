@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.recipe import Recipe
 from app.models.rating import Rating
 from app.extensions import db
+from app.utils.cloudinary_upload import upload_recipe_image
 
 recipe_bp = Blueprint('recipe', __name__)
 
@@ -165,3 +166,50 @@ def rate_recipe(recipe_id):
     db.session.commit()
 
     return jsonify({"message": "Recipe rated successfully"}), 201
+
+# ------------------ UPLOAD RECIPE IMAGE ------------------ #
+@recipe_bp.route('/recipes/<int:recipe_id>/upload-image', methods=['POST'])
+@jwt_required()
+def upload_recipe_image_endpoint(recipe_id):
+    """Upload an image for a recipe"""
+    user_id = int(get_jwt_identity())
+    recipe = Recipe.query.get_or_404(recipe_id)
+    
+    # Check if user owns this recipe
+    if recipe.user_id != user_id:
+        return jsonify({"error": "Unauthorized - You can only upload images to your own recipes"}), 403
+    
+    # Check if file is present in request
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+    
+    file = request.files['image']
+    
+    if not file or file.filename == '':
+        return jsonify({"error": "No image file selected"}), 400
+    
+    try:
+        # Upload to Cloudinary
+        success, result = upload_recipe_image(file, user_id, recipe.title)
+        
+        if not success:
+            return jsonify({"error": result}), 400
+        
+        # Update recipe's image URL
+        recipe.image_url = result['url']
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Recipe image uploaded successfully",
+            "image_url": result['url'],
+            "upload_details": {
+                "width": result.get('width'),
+                "height": result.get('height'),
+                "format": result.get('format'),
+                "size_bytes": result.get('bytes')
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500

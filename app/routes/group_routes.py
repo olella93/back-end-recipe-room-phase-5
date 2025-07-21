@@ -47,7 +47,7 @@ def create_group():
         )
 
         db.session.add(new_group)
-        db.session.flush()  # Flush to get the group ID
+        db.session.flush()  
 
         # Add creator as admin member
         admin_member = GroupMember(

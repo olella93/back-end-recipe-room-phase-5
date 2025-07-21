@@ -8,3 +8,5 @@ Flask-Bcrypt
 Flask-Cors
 python-dotenv
 psycopg2-binary
+cloudinary
+requests

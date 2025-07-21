@@ -21,7 +21,7 @@ This document describes the database schema for the Recipe Room application, inc
 | username | VARCHAR(80) | UNIQUE, NOT NULL | User's display name |
 | email | VARCHAR(100) | UNIQUE, NOT NULL | User's email address |
 | password_hash | TEXT | NOT NULL | Hashed password for security |
-| profile_image | VARCHAR(255) | NULLABLE | URL to user's profile image |
+| profile_image | VARCHAR(255) | NULLABLE | URL to user's profile image (Cloudinary) |
 | created_at | DATETIME | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Account creation timestamp |
 
 **Relationships**:
@@ -42,7 +42,7 @@ This document describes the database schema for the Recipe Room application, inc
 | ingredients | TEXT | NOT NULL | List of required ingredients |
 | instructions | TEXT | NOT NULL | Step-by-step cooking instructions |
 | country | VARCHAR(50) | NULLABLE | Country/cuisine origin |
-| image_url | VARCHAR(255) | NULLABLE | URL to recipe image |
+| image_url | VARCHAR(255) | NULLABLE | URL to recipe image (Cloudinary) |
 | serving_size | INTEGER | NULLABLE | Number of servings |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Recipe creation timestamp |
 | updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP, ON UPDATE | Last modification timestamp |
@@ -213,6 +213,9 @@ CREATE TABLE bookmarks (
 ### Authentication
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
+- `POST /api/auth/upload-profile-image` - Upload profile image (requires authentication)
+- `PUT /api/auth/profile` - Update user profile (requires authentication)
+- `GET /api/auth/profile` - Get current user profile (requires authentication)
 
 ### Recipes
 - `GET /api/recipes` - Get all recipes (with filtering)
@@ -220,6 +223,7 @@ CREATE TABLE bookmarks (
 - `GET /api/recipes/<id>` - Get single recipe
 - `PUT /api/recipes/<id>` - Update recipe
 - `DELETE /api/recipes/<id>` - Delete recipe
+- `POST /api/recipes/<id>/upload-image` - Upload recipe image (requires authentication)
 
 ### Ratings
 - `POST /api/recipes/<id>/rate` - Rate a recipe
@@ -244,9 +248,16 @@ CREATE TABLE bookmarks (
 3. **Group Functionality** - Recipe sharing within groups
 4. **Advanced Search** - Full-text search across recipes
 5. **Recipe Collections** - Users can create themed recipe collections
+6. **Image Management** - Bulk image operations and gallery views
 
 ### Database Improvements:
 1. Add indexes for performance optimization
 2. Implement soft deletes for data retention
 3. Add audit trails for data changes
 4. Implement recipe versioning
+
+### Image Management Features:
+1. **Cloudinary Integration** - ✅ Profile and recipe image uploads
+2. **Image Optimization** - Automatic resizing and format optimization
+3. **Image Deletion** - Clean up unused images
+4. **Image Galleries** - Display multiple images per recipe
