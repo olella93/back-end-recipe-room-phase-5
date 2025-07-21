@@ -1,24 +1,16 @@
 #!/usr/bin/env python3
-"""
-Test script for Recipe Room image upload functionality
-Run this script to test profile and recipe image uploads
-
-Prerequisites:
-1. Set up your Cloudinary credentials in .env file
-2. Have the Flask app running on localhost:5001
-3. Create a test user account first
-
-Usage:
-python test_image_uploads.py
-"""
 
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configuration
 BASE_URL = "http://localhost:5001/api"
-TEST_IMAGE_PATH = "test_image.jpg"  # Place a test image in the project root
+TEST_IMAGE_PATH = "test_image.jpeg" 
 
 def register_test_user():
     """Register a test user"""
@@ -146,7 +138,7 @@ def main():
     
     print("✅ Cloudinary credentials found")
     
-    # Register test user (or skip if already exists)
+    # Register test user 
     register_test_user()
     
     # Login

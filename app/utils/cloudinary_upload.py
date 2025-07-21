@@ -30,10 +30,10 @@ def validate_image_file(file):
     if not allowed_file(file.filename):
         return False, f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
     
-    # Check file size (this is approximate, real check happens in memory)
-    file.seek(0, 2)  # Seek to end
+    # Check file size 
+    file.seek(0, 2) 
     file_length = file.tell()
-    file.seek(0)  # Reset to beginning
+    file.seek(0)  
     
     if file_length > MAX_FILE_SIZE:
         return False, "File size too large. Maximum size is 5MB"
