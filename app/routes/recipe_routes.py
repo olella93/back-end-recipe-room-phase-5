@@ -49,7 +49,7 @@ def get_recipes():
 @recipe_bp.route('/recipes', methods=['POST'])
 @jwt_required()
 def create_recipe():
-    user_id = int(get_jwt_identity())  # Convert string back to int
+    user_id = int(get_jwt_identity()) 
     data = request.get_json()
 
     required_fields = ['title', 'description', 'ingredients', 'instructions']
