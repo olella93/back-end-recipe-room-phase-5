@@ -6,6 +6,7 @@ This document describes the database schema for the Recipe Room application, inc
 
 ## Current Implementation Status
 - ✅ **Implemented and Active**: Users, Recipes, Ratings, Groups, GroupMembers
+- ✅ **New Feature**: Group Recipe Sharing (recipes can be shared in groups via group_id)
 - ❌ **Planned/Empty**: Comments, Bookmarks
 
 ---
@@ -47,9 +48,11 @@ This document describes the database schema for the Recipe Room application, inc
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Recipe creation timestamp |
 | updated_at | DATETIME | DEFAULT CURRENT_TIMESTAMP, ON UPDATE | Last modification timestamp |
 | user_id | INTEGER | FOREIGN KEY (users.id), NOT NULL | Recipe creator |
+| group_id | INTEGER | FOREIGN KEY (groups.id), NULLABLE | Group where recipe is shared (optional) |
 
 **Relationships**:
 - Many-to-One with Users (recipes.user_id → users.id)
+- Many-to-One with Groups (recipes.group_id → groups.id) - OPTIONAL
 - One-to-Many with Ratings (recipes.id → ratings.recipe_id)
 
 ---
@@ -87,6 +90,7 @@ This document describes the database schema for the Recipe Room application, inc
 
 **Relationships**:
 - One-to-Many with GroupMembers (groups.id → group_members.group_id)
+- One-to-Many with Recipes (groups.id → recipes.group_id) - OPTIONAL
 
 ---
 
@@ -204,9 +208,10 @@ CREATE TABLE bookmarks (
 2. **Users → Ratings**: One-to-Many (A user can rate multiple recipes)
 3. **Recipes → Ratings**: One-to-Many (A recipe can have multiple ratings)
 4. **Users ↔ Groups**: Many-to-Many via GroupMembers (Users can join multiple groups)
-5. **Users → Comments**: One-to-Many (Planned - A user can comment on multiple recipes)
-6. **Recipes → Comments**: One-to-Many (Planned - A recipe can have multiple comments)
-7. **Users ↔ Recipes**: Many-to-Many via Bookmarks (Planned - Users can bookmark multiple recipes)
+5. **Groups → Recipes**: One-to-Many (Groups can have multiple shared recipes) ✅ NEW
+6. **Users → Comments**: One-to-Many (Planned - A user can comment on multiple recipes)
+7. **Recipes → Comments**: One-to-Many (Planned - A recipe can have multiple comments)
+8. **Users ↔ Recipes**: Many-to-Many via Bookmarks (Planned - Users can bookmark multiple recipes)
 
 ## API Endpoints Currently Implemented
 
@@ -218,12 +223,13 @@ CREATE TABLE bookmarks (
 - `GET /api/auth/profile` - Get current user profile (requires authentication)
 
 ### Recipes
-- `GET /api/recipes` - Get all recipes (with filtering)
-- `POST /api/recipes` - Create new recipe
-- `GET /api/recipes/<id>` - Get single recipe
-- `PUT /api/recipes/<id>` - Update recipe
+- `GET /api/recipes` - Get all recipes (with filtering, includes group_id)
+- `POST /api/recipes` - Create new recipe (supports group_id for sharing in groups)
+- `GET /api/recipes/<id>` - Get single recipe (includes group_id)
+- `PUT /api/recipes/<id>` - Update recipe (supports moving between groups)
 - `DELETE /api/recipes/<id>` - Delete recipe
 - `POST /api/recipes/<id>/upload-image` - Upload recipe image (requires authentication)
+- `GET /api/groups/<id>/recipes` - Get recipes shared in a specific group (requires group membership)
 
 ### Ratings
 - `POST /api/recipes/<id>/rate` - Rate a recipe
@@ -257,7 +263,7 @@ CREATE TABLE bookmarks (
 4. Implement recipe versioning
 
 ### Image Management Features:
-1. **Cloudinary Integration** - ✅ Profile and recipe image uploads
+1. **Cloudinary Integration** - Profile and recipe image uploads
 2. **Image Optimization** - Automatic resizing and format optimization
 3. **Image Deletion** - Clean up unused images
 4. **Image Galleries** - Display multiple images per recipe

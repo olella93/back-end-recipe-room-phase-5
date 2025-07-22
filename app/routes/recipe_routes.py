@@ -3,11 +3,49 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import or_
 from app.models.recipe import Recipe
 from app.models.rating import Rating
+from app.models.group_member import GroupMember
 from app.extensions import db
 from app.utils.cloudinary_upload import upload_recipe_image
 from app.schemas.recipe_schema import RecipeSchema
 
 recipe_bp = Blueprint('recipe', __name__)
+
+# ------------------ GET GROUP RECIPES ------------------ #
+@recipe_bp.route('/groups/<int:group_id>/recipes', methods=['GET'])
+@jwt_required()
+def get_group_recipes(group_id):
+    """Get all recipes shared in a specific group"""
+    user_id = int(get_jwt_identity())
+    
+    # Verify user is a member of the group
+    member = GroupMember.query.filter_by(user_id=user_id, group_id=group_id).first()
+    if not member:
+        return jsonify({"error": "You must be a member of this group to view its recipes"}), 403
+    
+    recipes = Recipe.query.filter_by(group_id=group_id).all()
+    
+    result = []
+    for recipe in recipes:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "description": recipe.description,
+            "ingredients": recipe.ingredients,
+            "instructions": recipe.instructions,
+            "country": recipe.country,
+            "serving_size": recipe.serving_size,
+            "image_url": recipe.image_url,
+            "created_at": recipe.created_at,
+            "updated_at": recipe.updated_at,
+            "user_id": recipe.user_id,
+            "group_id": recipe.group_id
+        })
+    
+    return jsonify({
+        "group_id": group_id,
+        "recipe_count": len(result),
+        "recipes": result
+    }), 200
 
 # ------------------ GET ALL RECIPES ------------------ #
 @recipe_bp.route('/recipes', methods=['GET'])
@@ -42,8 +80,8 @@ def get_recipes():
             "image_url": recipe.image_url,
             "created_at": recipe.created_at,
             "updated_at": recipe.updated_at,
-            "user_id": recipe.user_id
-            # "group_id": recipe.group_id  # Temporarily commented out
+            "user_id": recipe.user_id,
+            "group_id": recipe.group_id
         })
 
     return jsonify(result), 200
@@ -60,6 +98,13 @@ def create_recipe():
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
+        # If group_id is provided, validate user is member of that group
+        group_id = data.get('group_id')
+        if group_id:
+            member = GroupMember.query.filter_by(user_id=user_id, group_id=group_id).first()
+            if not member:
+                return jsonify({"error": "You must be a member of the group to share recipes there"}), 403
+
         new_recipe = Recipe(
             title=data['title'],
             description=data['description'],
@@ -68,7 +113,7 @@ def create_recipe():
             country=data.get('country'),
             image_url=data.get('image_url'),
             serving_size=data.get('serving_size'),
-            # group_id=data.get('group_id'),  # Temporarily commented out
+            group_id=group_id,
             user_id=user_id
         )
 
@@ -100,8 +145,8 @@ def get_single_recipe(recipe_id):
         "image_url": recipe.image_url,
         "created_at": recipe.created_at,
         "updated_at": recipe.updated_at,
-        "user_id": recipe.user_id
-        # "group_id": recipe.group_id  # Temporarily commented out
+        "user_id": recipe.user_id,
+        "group_id": recipe.group_id
     }), 200
 
 # ------------------ UPDATE RECIPE ------------------ #
@@ -115,6 +160,15 @@ def update_recipe(recipe_id):
         return jsonify({"error": "Unauthorized"}), 403
 
     data = request.get_json()
+    
+    # If updating group_id, validate user is member of that group
+    new_group_id = data.get('group_id')
+    if new_group_id is not None and new_group_id != recipe.group_id:
+        if new_group_id != 0:  
+            member = GroupMember.query.filter_by(user_id=user_id, group_id=new_group_id).first()
+            if not member:
+                return jsonify({"error": "You must be a member of the group to share recipes there"}), 403
+    
     recipe.title = data.get('title', recipe.title)
     recipe.description = data.get('description', recipe.description)
     recipe.ingredients = data.get('ingredients', recipe.ingredients)
@@ -122,7 +176,10 @@ def update_recipe(recipe_id):
     recipe.country = data.get('country', recipe.country)
     recipe.image_url = data.get('image_url', recipe.image_url)
     recipe.serving_size = data.get('serving_size', recipe.serving_size)
-    # recipe.group_id = data.get('group_id', recipe.group_id) 
+    
+    # Handle group_id update (including removal)
+    if 'group_id' in data:
+        recipe.group_id = data['group_id'] if data['group_id'] != 0 else None 
 
     db.session.commit()
     return jsonify({"message": "Recipe updated successfully"}), 200
