@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import or_
 from app.models.recipe import Recipe
 from app.models.rating import Rating
 from app.models.group_member import GroupMember
 from app.extensions import db
 from app.utils.cloudinary_upload import upload_recipe_image
+from app.schemas.recipe_schema import RecipeSchema
 
 recipe_bp = Blueprint('recipe', __name__)
 
@@ -270,3 +272,22 @@ def upload_recipe_image_endpoint(recipe_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Upload failed: {str(e)}"}), 500
+
+# ------------------ SEARCH RECIPES ------------------ #
+@recipe_bp.route('/recipes/search', methods=['GET'])
+def search_recipes():
+    query_param = request.args.get('query', '').strip()
+
+    if not query_param:
+        return jsonify({"error": "Search query parameter is required"}), 400
+
+    results = Recipe.query.filter(
+        or_(
+            Recipe.title.ilike(f"%{query_param}%"),
+            Recipe.description.ilike(f"%{query_param}%"),
+            Recipe.ingredients.ilike(f"%{query_param}%")
+        )
+    ).all()
+
+    recipe_schema = RecipeSchema(many=True)
+    return jsonify(recipe_schema.dump(results)), 200
