@@ -41,16 +41,7 @@ def validate_image_file(file):
     return True, "Valid file"
 
 def upload_profile_image(file, user_id):
-    """
-    Upload profile image to Cloudinary
-    
-    Args:
-        file: File object from request.files
-        user_id: User ID for unique naming
-    
-    Returns:
-        tuple: (success: bool, result: dict or error_message: str)
-    """
+    """Upload a profile image to Cloudinary"""
     try:
         # Validate file
         is_valid, message = validate_image_file(file)
@@ -86,17 +77,7 @@ def upload_profile_image(file, user_id):
         return False, f"Upload failed: {str(e)}"
 
 def upload_recipe_image(file, user_id, recipe_title=""):
-    """
-    Upload recipe image to Cloudinary
-    
-    Args:
-        file: File object from request.files
-        user_id: User ID for organization
-        recipe_title: Recipe title for naming (optional)
-    
-    Returns:
-        tuple: (success: bool, result: dict or error_message: str)
-    """
+    """Upload a recipe image to Cloudinary"""
     try:
         # Validate file
         is_valid, message = validate_image_file(file)
@@ -133,15 +114,7 @@ def upload_recipe_image(file, user_id, recipe_title=""):
         return False, f"Upload failed: {str(e)}"
 
 def delete_image(public_id):
-    """
-    Delete image from Cloudinary
-    
-    Args:
-        public_id: The public ID of the image to delete
-    
-    Returns:
-        tuple: (success: bool, message: str)
-    """
+    """Delete an image from Cloudinary"""
     try:
         result = cloudinary.uploader.destroy(public_id)
         if result.get('result') == 'ok':
@@ -152,16 +125,7 @@ def delete_image(public_id):
         return False, f"Delete failed: {str(e)}"
 
 def get_optimized_url(public_id, transformation=None):
-    """
-    Get optimized URL for an image
-    
-    Args:
-        public_id: The public ID of the image
-        transformation: Optional transformation parameters
-    
-    Returns:
-        str: Optimized image URL
-    """
+   
     try:
         if transformation:
             url, _ = cloudinary_url(public_id, **transformation)

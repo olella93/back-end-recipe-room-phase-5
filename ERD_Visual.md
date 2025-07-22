@@ -21,6 +21,7 @@ erDiagram
         datetime created_at "DEFAULT CURRENT_TIMESTAMP"
         datetime updated_at "ON UPDATE CURRENT_TIMESTAMP"
         int user_id FK "NOT NULL"
+        int group_id FK "NULLABLE"
     }
 
     RATINGS {
@@ -70,6 +71,7 @@ erDiagram
     %% Partial Relationships (Models exist)
     USERS ||--o{ GROUP_MEMBERS : "joins"
     GROUPS ||--o{ GROUP_MEMBERS : "has_members"
+    GROUPS ||--o{ RECIPES : "contains_shared_recipes"
     
     %% Planned Relationships (Not yet implemented)
     USERS ||--o{ COMMENTS : "writes"
@@ -103,12 +105,6 @@ erDiagram
 - **groups** - Group/community structure and management
 - **group_members** - Group membership management
 
-### 🟡 Partial Tables  
-- (none)
-
-### ❌ Planned Tables
-- **comments** - Recipe comments (empty file exists)
-- **bookmarks** - Recipe favorites (empty file exists)
 
 ## Business Rules
 
@@ -131,7 +127,14 @@ erDiagram
    - Only group admins can promote/demote other members
    - Group creators are automatically admins
 
-4. **Authentication**:
+4. **Group Recipe Sharing**:
+   - Recipes can optionally be shared in groups via group_id
+   - Users must be group members to share recipes in that group
+   - Users must be group members to view group-specific recipes
+   - Recipes can be moved between groups or made personal
+   - Group recipes are visible to all group members
+
+5. **Authentication**:
    - Unique usernames and emails required
    - Password hashing with PBKDF2-SHA256
    - JWT tokens for API authentication
@@ -140,17 +143,12 @@ erDiagram
 
 ### ✅ Implemented Endpoints
 - User registration and login
-- Full Recipe CRUD operations
+- Full Recipe CRUD operations (with group sharing support)
 - Recipe rating system  
 - Recipe filtering (country, rating, serving size)
 - Full Group CRUD operations
 - Group membership management (join, leave, admin promotion/demotion)
 - Group member management (remove members)
+- Group recipe sharing (create, view, move between groups)
+- User profile management (view, update, image upload)
 
-### 🟡 Partially Available
-- (none)
-
-### ❌ Not Yet Implemented  
-- Comments API
-- Bookmarks API
-- User profile management
