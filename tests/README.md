@@ -30,6 +30,15 @@ This directory contains all test files for the Recipe Room backend application.
 - Simple focused test for group recipe endpoint
 - Quick validation of group recipe functionality
 
+#### `test_image_upload.py`
+- Tests image upload functionality for profiles and recipes
+- **Features Tested:**
+  - Profile image upload to Cloudinary
+  - Recipe image upload to Cloudinary
+  - Authentication and authorization for uploads
+  - File validation and error handling
+  - Cloudinary configuration validation
+
 ### 🏗️ **Unit Tests (Framework Placeholders)**
 
 #### `test_auth.py`
