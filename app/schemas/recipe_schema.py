@@ -17,3 +17,4 @@ class RecipeSchema(ma.SQLAlchemySchema):
     created_at = ma.auto_field()
     updated_at = ma.auto_field()
     user_id = ma.auto_field()
+    group_id = ma.auto_field()

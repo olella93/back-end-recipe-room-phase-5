@@ -6,7 +6,7 @@ from app.models.rating import Rating
 from app.models.group_member import GroupMember
 from app.extensions import db
 from app.utils.cloudinary_upload import upload_recipe_image
-from app.schemas.recipe_schema import RecipeSchema
+# from app.schemas.recipe_schema import RecipeSchema
 
 recipe_bp = Blueprint('recipe', __name__)
 
@@ -289,5 +289,26 @@ def search_recipes():
         )
     ).all()
 
-    recipe_schema = RecipeSchema(many=True)
-    return jsonify(recipe_schema.dump(results)), 200
+    # Manual serialization to match other endpoints
+    result = []
+    for recipe in results:
+        result.append({
+            "id": recipe.id,
+            "title": recipe.title,
+            "description": recipe.description,
+            "ingredients": recipe.ingredients,
+            "instructions": recipe.instructions,
+            "country": recipe.country,
+            "serving_size": recipe.serving_size,
+            "image_url": recipe.image_url,
+            "created_at": recipe.created_at,
+            "updated_at": recipe.updated_at,
+            "user_id": recipe.user_id,
+            "group_id": recipe.group_id
+        })
+
+    return jsonify({
+        "query": query_param,
+        "result_count": len(result),
+        "recipes": result
+    }), 200
