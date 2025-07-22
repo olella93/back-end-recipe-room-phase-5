@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Test Runner for Recipe Room Backend
-Runs all test files in the tests directory
-"""
-
 import os
 import sys
 import subprocess
@@ -18,7 +13,8 @@ def run_tests():
     test_files = [
         "test_recipe_search.py",
         "test_groups.py", 
-        "test_groups_simple.py"
+        "test_groups_simple.py",
+        "test_image_uploads.py"
     ]
     
     print(f"\nFound {len(test_files)} test files:")

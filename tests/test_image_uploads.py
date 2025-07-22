@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuration
-BASE_URL = "http://localhost:5001/api"
+BASE_URL = "http://localhost:5003/api"
 TEST_IMAGE_PATH = "test_image.jpeg" 
 
 def register_test_user():
