@@ -4,4 +4,5 @@
 # from .rating import Rating
 # from .group import Group
 # from .group_member import GroupMember
+from .comment import Comment
 
