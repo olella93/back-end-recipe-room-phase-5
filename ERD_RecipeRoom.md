@@ -5,9 +5,10 @@
 This document describes the database schema for the Recipe Room application, including all entities, attributes, and relationships.
 
 ## Current Implementation Status
-- ✅ **Implemented and Active**: Users, Recipes, Ratings, Groups, GroupMembers
+- ✅ **Implemented and Active**: Users, Recipes, Ratings, Groups, GroupMembers, Comments
 - ✅ **New Feature**: Group Recipe Sharing (recipes can be shared in groups via group_id)
-- ❌ **Planned/Empty**: Comments, Bookmarks
+- ✅ **New Feature**: Comments System (users can comment on recipes)
+- ❌ **Planned/Empty**: Bookmarks
 
 ---
 
@@ -29,6 +30,7 @@ This document describes the database schema for the Recipe Room application, inc
 - One-to-Many with Recipes (users.id → recipes.user_id)
 - One-to-Many with Ratings (users.id → ratings.user_id)
 - One-to-Many with GroupMembers (users.id → group_members.user_id)
+- One-to-Many with Comments (users.id → comments.user_id)
 
 ---
 
@@ -54,6 +56,7 @@ This document describes the database schema for the Recipe Room application, inc
 - Many-to-One with Users (recipes.user_id → users.id)
 - Many-to-One with Groups (recipes.group_id → groups.id) - OPTIONAL
 - One-to-Many with Ratings (recipes.id → ratings.recipe_id)
+- One-to-Many with Comments (recipes.id → comments.recipe_id)
 
 ---
 
@@ -114,24 +117,25 @@ This document describes the database schema for the Recipe Room application, inc
 
 ---
 
-### 6. **Comments** Table ❌ PLANNED
+### 6. **Comments** Table ✅ ACTIVE
 **Purpose**: Store user comments on recipes
 
-*Note: This table is planned but not yet implemented*
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY, AUTO_INCREMENT | Unique comment identifier |
+| text | TEXT | NOT NULL | Comment content/message |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Comment creation timestamp |
+| user_id | INTEGER | FOREIGN KEY (users.id), NOT NULL | User who wrote the comment |
+| recipe_id | INTEGER | FOREIGN KEY (recipes.id), NOT NULL | Recipe being commented on |
 
-**Proposed Schema**:
-```sql
-CREATE TABLE comments (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    content TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
-    recipe_id INTEGER NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (recipe_id) REFERENCES recipes(id)
-);
-```
+**Relationships**:
+- Many-to-One with Users (comments.user_id → users.id)
+- Many-to-One with Recipes (comments.recipe_id → recipes.id)
+
+**Business Rules**:
+- Users can comment multiple times on the same recipe
+- Comments can be updated and deleted by their owner
+- JWT authentication required for create/update/delete operations
 
 ---
 
@@ -172,33 +176,39 @@ CREATE TABLE bookmarks (
                       │   │ created_at      │   │            │
                       │   │ updated_at      │   │            │
                       └──▶│ 🔗 user_id (FK)  │   └────────────┘
+                          │ 🔗 group_id (FK) │
                           └─────────────────┘
-
-┌─────────────────┐       ┌─────────────────┐
-│     GROUPS      │       │ GROUP_MEMBERS   │
-├─────────────────┤       ├─────────────────┤
-│ 🔑 id (PK)       │───┐   │ 🔑 id (PK)       │
-│ name            │   │   │ 🔗 user_id (FK)  │──┐
+                                    │
+                          ┌─────────▼─────────┐
+                          │    COMMENTS      │
+                          ├─────────────────┤
+                          │ 🔑 id (PK)       │
+                          │ text            │
+                          │ 🔗 user_id (FK)  │──┐
+                          │ 🔗 recipe_id (FK)│  │
+                          │ created_at      │  │
+                          └─────────────────┘  │
+                                               │
+┌─────────────────┐       ┌─────────────────┐  │
+│     GROUPS      │       │ GROUP_MEMBERS   │  │
+├─────────────────┤       ├─────────────────┤  │
+│ 🔑 id (PK)       │───┐   │ 🔑 id (PK)       │  │
+│ name            │   │   │ 🔗 user_id (FK)  │──┼──┘
 │ description     │   │   │ 🔗 group_id (FK) │  │
 │ created_at      │   │   │ is_admin        │  │
 └─────────────────┘   └──▶│ joined_at       │  │
-                          └─────────────────┘  │
-                                               │
-                          ┌─────────────────┐  │
-                          │     USERS       │◀─┘
-                          │ (same as above) │
-                          └─────────────────┘
+        │                 └─────────────────┘  │
+        │                                      │
+        └──────────────────────────────────────┘
 
 📝 PLANNED TABLES (Not Yet Implemented):
-┌─────────────────┐       ┌─────────────────┐
-│    COMMENTS     │       │   BOOKMARKS     │
-├─────────────────┤       ├─────────────────┤
-│ 🔑 id (PK)       │       │ 🔑 id (PK)       │
-│ content         │       │ 🔗 user_id (FK)  │
-│ 🔗 user_id (FK)  │       │ 🔗 recipe_id (FK)│
-│ 🔗 recipe_id (FK)│       │ created_at      │
-│ created_at      │       └─────────────────┘
-│ updated_at      │
+┌─────────────────┐
+│   BOOKMARKS     │
+├─────────────────┤
+│ 🔑 id (PK)       │
+│ 🔗 user_id (FK)  │
+│ 🔗 recipe_id (FK)│
+│ created_at      │
 └─────────────────┘
 ```
 
@@ -208,9 +218,9 @@ CREATE TABLE bookmarks (
 2. **Users → Ratings**: One-to-Many (A user can rate multiple recipes)
 3. **Recipes → Ratings**: One-to-Many (A recipe can have multiple ratings)
 4. **Users ↔ Groups**: Many-to-Many via GroupMembers (Users can join multiple groups)
-5. **Groups → Recipes**: One-to-Many (Groups can have multiple shared recipes) ✅ NEW
-6. **Users → Comments**: One-to-Many (Planned - A user can comment on multiple recipes)
-7. **Recipes → Comments**: One-to-Many (Planned - A recipe can have multiple comments)
+5. **Groups → Recipes**: One-to-Many (Groups can have multiple shared recipes)
+6. **Users → Comments**: One-to-Many (A user can comment on multiple recipes)
+7. **Recipes → Comments**: One-to-Many (A recipe can have multiple comments) 
 8. **Users ↔ Recipes**: Many-to-Many via Bookmarks (Planned - Users can bookmark multiple recipes)
 
 ## API Endpoints Currently Implemented
@@ -246,15 +256,20 @@ CREATE TABLE bookmarks (
 - `DELETE /api/groups/<id>/members/<user_id>` - Remove member (admin only)
 - `GET /api/my-groups` - Get current user's groups
 
+### Comments
+- `POST /api/comments/` - Create new comment (requires authentication)
+- `GET /api/comments/<recipe_id>` - Get all comments for a recipe
+- `PUT /api/comments/<comment_id>` - Update comment (owner only)
+- `DELETE /api/comments/<comment_id>` - Delete comment (owner only)
+
 ## Future Development
 
 ### Planned Features:
-1. **Comments System** - Users can comment on recipes
-2. **Bookmark/Favorites** - Users can save favorite recipes
-3. **Group Functionality** - Recipe sharing within groups
-4. **Advanced Search** - Full-text search across recipes
-5. **Recipe Collections** - Users can create themed recipe collections
-6. **Image Management** - Bulk image operations and gallery views
+1. **Bookmark/Favorites** - Users can save favorite recipes
+2. **Advanced Search** - Full-text search across recipes  
+3. **Recipe Collections** - Users can create themed recipe collections
+4. **Enhanced Comments** - Reply to comments, comment threading
+5. **Recipe Rating Analytics** - Average ratings, rating distributions
 
 ### Database Improvements:
 1. Add indexes for performance optimization

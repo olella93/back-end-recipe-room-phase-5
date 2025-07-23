@@ -13,7 +13,7 @@ comments_schema = CommentSchema(many=True)
 @jwt_required()
 def create_comment():
     data = request.get_json()
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     if not data or not data.get('text') or not data.get('recipe_id'):
         return jsonify({
@@ -38,7 +38,7 @@ def get_comments_for_recipe(recipe_id):
 @comment_bp.route('/<int:comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(comment_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     comment = Comment.query.get_or_404(comment_id)
 
     if comment.user_id != user_id:
@@ -52,7 +52,7 @@ def delete_comment(comment_id):
 @jwt_required()
 def update_comment(comment_id):
     data = request.get_json()
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     comment = Comment.query.get_or_404(comment_id)
 
     if comment.user_id != user_id:

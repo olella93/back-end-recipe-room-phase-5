@@ -14,7 +14,8 @@ def run_tests():
         "test_recipe_search.py",
         "test_groups.py", 
         "test_groups_simple.py",
-        "test_image_uploads.py"
+        "test_image_uploads.py",
+        "test_comments.py"
     ]
     
     print(f"\nFound {len(test_files)} test files:")
