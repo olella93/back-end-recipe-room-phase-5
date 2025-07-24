@@ -4,9 +4,6 @@ from app.extensions import db
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.utils.cloudinary_upload import upload_profile_image
 
-
-
-
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods = ['POST'])

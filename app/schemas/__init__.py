@@ -1,0 +1,1 @@
+from .bookmark_schema import BookmarkSchema

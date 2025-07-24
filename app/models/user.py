@@ -12,6 +12,8 @@ class User(db.Model):
     profile_image = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
+    bookmarks = db.relationship('Bookmark', back_populates='user', cascade='all, delete-orphan')
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
 
