@@ -5,10 +5,10 @@
 This document describes the database schema for the Recipe Room application, including all entities, attributes, and relationships.
 
 ## Current Implementation Status
-- ✅ **Implemented and Active**: Users, Recipes, Ratings, Groups, GroupMembers, Comments
+- ✅ **Implemented and Active**: Users, Recipes, Ratings, Groups, GroupMembers, Comments, Bookmarks
 - ✅ **New Feature**: Group Recipe Sharing (recipes can be shared in groups via group_id)
 - ✅ **New Feature**: Comments System (users can comment on recipes)
-- ❌ **Planned/Empty**: Bookmarks
+- ✅ **New Feature**: Bookmarks System (users can bookmark/favorite recipes)
 
 ---
 
@@ -139,23 +139,24 @@ This document describes the database schema for the Recipe Room application, inc
 
 ---
 
-### 7. **Bookmarks** Table ❌ PLANNED
+### 7. **Bookmarks** Table ✅ ACTIVE
 **Purpose**: Store user bookmarks/favorites for recipes
 
-*Note: This table is planned but not yet implemented*
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | INTEGER | PRIMARY KEY, AUTO_INCREMENT | Unique bookmark identifier |
+| user_id | INTEGER | FOREIGN KEY (users.id), NOT NULL | User who bookmarked the recipe |
+| recipe_id | INTEGER | FOREIGN KEY (recipes.id), NOT NULL | Recipe being bookmarked |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | Bookmark creation timestamp |
 
-**Proposed Schema**:
-```sql
-CREATE TABLE bookmarks (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    user_id INTEGER NOT NULL,
-    recipe_id INTEGER NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (recipe_id) REFERENCES recipes(id),
-    UNIQUE KEY unique_bookmark (user_id, recipe_id)
-);
-```
+**Relationships**:
+- Many-to-One with Users (bookmarks.user_id → users.id)
+- Many-to-One with Recipes (bookmarks.recipe_id → recipes.id)
+
+**Business Rules**:
+- One bookmark per user per recipe (unique constraint on user_id + recipe_id)
+- Users can bookmark multiple recipes
+- Users can only bookmark each recipe once (duplicate prevention)
 
 ---
 
@@ -201,15 +202,17 @@ CREATE TABLE bookmarks (
         │                                      │
         └──────────────────────────────────────┘
 
-📝 PLANNED TABLES (Not Yet Implemented):
-┌─────────────────┐
-│   BOOKMARKS     │
-├─────────────────┤
-│ 🔑 id (PK)       │
-│ 🔗 user_id (FK)  │
-│ 🔗 recipe_id (FK)│
-│ created_at      │
-└─────────────────┘
+📝 ALL CORE FEATURES IMPLEMENTED ✅
+
+Current Status: All planned core features are now implemented and active:
+- Users with profile management ✅
+- Recipes with CRUD operations ✅  
+- Ratings system ✅
+- Groups with membership management ✅
+- Comments system ✅
+- Bookmarks/favorites system ✅
+- Image uploads (Cloudinary) ✅
+- Search functionality ✅
 ```
 
 ## Key Relationships Summary
@@ -262,14 +265,24 @@ CREATE TABLE bookmarks (
 - `PUT /api/comments/<comment_id>` - Update comment (owner only)
 - `DELETE /api/comments/<comment_id>` - Delete comment (owner only)
 
+### Bookmarks
+- `POST /api/bookmarks` - Create new bookmark (requires authentication)
+- `GET /api/bookmarks` - Get current user's bookmarks (requires authentication)
+- `DELETE /api/bookmarks/<id>` - Delete bookmark (owner only)
+
+### Search
+- `GET /api/recipes/search?query=<term>` - Search recipes by title, description, or ingredients
+
 ## Future Development
 
-### Planned Features:
-1. **Bookmark/Favorites** - Users can save favorite recipes
-2. **Advanced Search** - Full-text search across recipes  
-3. **Recipe Collections** - Users can create themed recipe collections
-4. **Enhanced Comments** - Reply to comments, comment threading
-5. **Recipe Rating Analytics** - Average ratings, rating distributions
+### Optional Enhancement Ideas:
+1. **Advanced Search** - Full-text search with filters (cuisine, difficulty, time)
+2. **Recipe Collections** - Users can create themed recipe collections
+3. **Enhanced Comments** - Reply to comments, comment threading
+4. **Recipe Rating Analytics** - Average ratings, rating distributions
+5. **Recipe Sharing** - Direct recipe sharing via links
+6. **Nutrition Information** - Add nutritional data to recipes
+7. **Recipe Timing** - Add prep time, cook time, total time fields
 
 ### Database Improvements:
 1. Add indexes for performance optimization

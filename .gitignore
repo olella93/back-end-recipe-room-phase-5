@@ -148,3 +148,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Test organization
+# Note: All test files should be placed in the tests/ directory
+# Avoid creating test files in the root directory

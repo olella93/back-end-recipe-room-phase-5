@@ -14,8 +14,11 @@ def run_tests():
         "test_recipe_search.py",
         "test_groups.py", 
         "test_groups_simple.py",
+        "test_group_recipes.py",
+        "test_all_endpoints.py",
         "test_image_uploads.py",
-        "test_comments.py"
+        "test_comments.py",
+        "test_bookmarks.py"
     ]
     
     print(f"\nFound {len(test_files)} test files:")
