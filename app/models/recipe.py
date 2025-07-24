@@ -20,5 +20,4 @@ class Recipe(db.Model):
 
     user = db.relationship('User', backref='recipes')
     group = db.relationship('Group', backref='recipes')
-
     bookmarks = db.relationship('Bookmark', back_populates='recipe', cascade='all, delete-orphan')
