@@ -9,9 +9,7 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-jwt-key")
 
     # SQLAlchemy Database configuration
-    SQLALCHEMY_DATABASE_URI = ('postgresql://citikom:newpassword@localhost:5432/recipe_room'
-
-    )
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://citikom:newpassword@localhost:5432/recipe_room')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # CORS
