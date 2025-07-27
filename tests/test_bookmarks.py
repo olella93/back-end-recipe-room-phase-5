@@ -20,7 +20,7 @@ def register_and_login_user(username, email, password):
         "email": email,
         "password": password
     }
-    requests.post(register_url, json=register_data)  # Ignore result
+    requests.post(register_url, json=register_data) 
     
     # Login
     login_url = f"{BASE_URL}/auth/login"
@@ -163,7 +163,7 @@ def test_unauthorized_bookmark_deletion(token1, token2, bookmark_id):
     """Test unauthorized bookmark deletion"""
     url = f"{BASE_URL}/bookmarks/{bookmark_id}"
     headers = {
-        "Authorization": f"Bearer {token2}"  # Different user's token
+        "Authorization": f"Bearer {token2}" 
     }
     
     response = requests.delete(url, headers=headers)

@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Simple database initialization script for production deployment
-"""
 from app.main import create_app
 from app.extensions import db
 

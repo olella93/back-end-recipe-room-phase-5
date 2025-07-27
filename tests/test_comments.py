@@ -229,7 +229,7 @@ def main():
         "Authorization": f"Bearer {token1}",
         "Content-Type": "application/json"
     }
-    data = {"recipe_id": recipe_id}  # Missing text
+    data = {"recipe_id": recipe_id} 
     
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 400:
@@ -239,7 +239,7 @@ def main():
     
     # Test creating comment without recipe_id
     print("Testing comment creation without recipe_id...")
-    data = {"text": "Some comment"}  # Missing recipe_id
+    data = {"text": "Some comment"}  
     
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 400:
