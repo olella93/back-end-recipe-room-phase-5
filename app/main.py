@@ -20,7 +20,7 @@ def create_app():
     jwt.init_app(app)
     ma.init_app(app)
     bcrypt.init_app(app)
-    cors.init_app(app)
+    cors.init_app(app, origins=["http://localhost:3000"])
 
     # Register blueprints
     init_routes(app)
