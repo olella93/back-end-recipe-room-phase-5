@@ -20,7 +20,14 @@ def create_app():
     jwt.init_app(app)
     ma.init_app(app)
     bcrypt.init_app(app)
-    cors.init_app(app, origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"], supports_credentials=True)
+    cors.init_app(app, origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:3004",
+        "https://front-end-recipe-room-phase-5-zzxt.vercel.app/"
+    ], supports_credentials=True)
 
     # Register blueprints
     init_routes(app)
