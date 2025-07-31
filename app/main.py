@@ -26,7 +26,8 @@ def create_app():
         "http://localhost:3002",
         "http://localhost:3003",
         "http://localhost:3004",
-        "https://front-end-recipe-room-phase-5-zzxt.vercel.app"
+        "https://front-end-recipe-room-phase-5-zzxt.vercel.app",
+        "https://front-end-recipe-room-phase-5-xern.vercel.app"
     ], supports_credentials=True)
 
     # Register blueprints
