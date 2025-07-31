@@ -11,4 +11,4 @@ class Comment(db.Model):
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
 
     user = db.relationship('User', backref='comments')
-    recipe = db.relationship('Recipe', backref='comments')
+    recipe = db.relationship('Recipe', back_populates='comments')

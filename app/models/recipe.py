@@ -22,4 +22,4 @@ class Recipe(db.Model):
     group = db.relationship('Group', backref='recipes')
     bookmarks = db.relationship('Bookmark', back_populates='recipe', cascade='all, delete-orphan')
     ratings = db.relationship('Rating', backref='recipe', cascade='all, delete-orphan')
-    comments = db.relationship('Comment', backref='recipe', cascade='all, delete-orphan')
+    comments = db.relationship('Comment', back_populates='recipe', cascade='all, delete-orphan')
