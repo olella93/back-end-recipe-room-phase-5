@@ -134,6 +134,24 @@ def create_recipe():
 def get_single_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
 
+    # Get current user id if JWT is present
+    user_id = None
+    try:
+        user_id = int(get_jwt_identity())
+    except Exception:
+        pass
+
+    # Calculate average rating
+    ratings = Rating.query.filter_by(recipe_id=recipe_id).all()
+    average_rating = round(sum(r.value for r in ratings) / len(ratings), 2) if ratings else None
+
+    # Get current user's rating
+    user_rating = None
+    if user_id:
+        user_rating_obj = Rating.query.filter_by(recipe_id=recipe_id, user_id=user_id).first()
+        if user_rating_obj:
+            user_rating = user_rating_obj.value
+
     return jsonify({
         "id": recipe.id,
         "title": recipe.title,
@@ -146,7 +164,9 @@ def get_single_recipe(recipe_id):
         "created_at": recipe.created_at,
         "updated_at": recipe.updated_at,
         "user_id": recipe.user_id,
-        "group_id": recipe.group_id
+        "group_id": recipe.group_id,
+        "average_rating": average_rating,
+        "user_rating": user_rating
     }), 200
 
 # ------------------ UPDATE RECIPE ------------------ #
