@@ -8,3 +8,6 @@ class Rating(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable = False)
     created_at = db.Column(db.DateTime, default = db.func.current_timestamp())
+
+    user = db.relationship('User', backref='ratings')
+    recipe = db.relationship('Recipe', back_populates='ratings')

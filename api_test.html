@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Room API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .response {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid #e9ecef;
+        }
+        .success { border-color: #28a745; }
+        .error { border-color: #dc3545; }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        h1 { color: #333; text-align: center; }
+        h3 { color: #555; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍳 Recipe Room API Tester</h1>
+        <p><strong>API Base URL:</strong> https://back-end-recipe-room-phase-5.onrender.com</p>
+
+        <!-- GET Recipes -->
+        <div class="test-section">
+            <h3>📋 Get All Recipes</h3>
+            <button onclick="getRecipes()">Test GET /api/recipes</button>
+            <div id="recipesResponse" class="response"></div>
+        </div>
+
+        <!-- Register User -->
+        <div class="test-section">
+            <h3>👤 Register New User</h3>
+            <input type="text" id="regUsername" placeholder="Username" value="testuser123">
+            <input type="email" id="regEmail" placeholder="Email" value="test123@example.com">
+            <input type="password" id="regPassword" placeholder="Password" value="password123">
+            <button onclick="registerUser()">Test POST /api/auth/register</button>
+            <div id="registerResponse" class="response"></div>
+        </div>
+
+        <!-- Login User -->
+        <div class="test-section">
+            <h3>🔐 Login User</h3>
+            <input type="text" id="loginUsername" placeholder="Username" value="testuser123">
+            <input type="password" id="loginPassword" placeholder="Password" value="password123">
+            <button onclick="loginUser()">Test POST /api/auth/login</button>
+            <div id="loginResponse" class="response"></div>
+        </div>
+
+        <!-- Create Recipe -->
+        <div class="test-section">
+            <h3>🍽️ Create Recipe (Requires Login)</h3>
+            <input type="text" id="recipeTitle" placeholder="Recipe Title" value="Test Recipe">
+            <textarea id="recipeDescription" placeholder="Description">A delicious test recipe</textarea>
+            <textarea id="recipeIngredients" placeholder="Ingredients (JSON array)">["1 cup flour", "2 eggs", "1 cup milk"]</textarea>
+            <textarea id="recipeInstructions" placeholder="Instructions">Mix ingredients and cook</textarea>
+            <button onclick="createRecipe()">Test POST /api/recipes</button>
+            <div id="createRecipeResponse" class="response"></div>
+        </div>
+
+        <!-- Get Users -->
+        <div class="test-section">
+            <h3>👥 Get All Users</h3>
+            <button onclick="getUsers()">Test GET /api/users</button>
+            <div id="usersResponse" class="response"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://back-end-recipe-room-phase-5.onrender.com';
+        let authToken = '';
+
+        function displayResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = isError ? 'response error' : 'response success';
+        }
+
+        async function getRecipes() {
+            try {
+                const response = await fetch(`${API_BASE}/api/recipes`);
+                const data = await response.json();
+                displayResponse('recipesResponse', data);
+            } catch (error) {
+                displayResponse('recipesResponse', { error: error.message }, true);
+            }
+        }
+
+        async function registerUser() {
+            try {
+                const username = document.getElementById('regUsername').value;
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
+
+                const response = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await response.json();
+                displayResponse('registerResponse', data, !response.ok);
+            } catch (error) {
+                displayResponse('registerResponse', { error: error.message }, true);
+            }
+        }
+
+        async function loginUser() {
+            try {
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                
+                if (data.token) {
+                    authToken = data.token;
+                    displayResponse('loginResponse', { ...data, note: '✅ Token saved for authenticated requests' });
+                } else {
+                    displayResponse('loginResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('loginResponse', { error: error.message }, true);
+            }
+        }
+
+        async function createRecipe() {
+            if (!authToken) {
+                displayResponse('createRecipeResponse', { error: 'Please login first to get authentication token' }, true);
+                return;
+            }
+
+            try {
+                const title = document.getElementById('recipeTitle').value;
+                const description = document.getElementById('recipeDescription').value;
+                const ingredients = JSON.parse(document.getElementById('recipeIngredients').value);
+                const instructions = document.getElementById('recipeInstructions').value;
+
+                const response = await fetch(`${API_BASE}/api/recipes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ title, description, ingredients, instructions })
+                });
+                const data = await response.json();
+                displayResponse('createRecipeResponse', data, !response.ok);
+            } catch (error) {
+                displayResponse('createRecipeResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/users`);
+                const data = await response.json();
+                displayResponse('usersResponse', data);
+            } catch (error) {
+                displayResponse('usersResponse', { error: error.message }, true);
+            }
+        }
+
+        // Test connection on page load
+        window.onload = function() {
+            getRecipes();
+        };
+    </script>
+</body>
+</html>
