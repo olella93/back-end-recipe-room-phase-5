@@ -25,16 +25,19 @@ def get_groups():
 
     for group in groups:
         current_user_is_admin = False
+        current_user_is_member = False
         if user_id:
-            member = next((m for m in group.members if m.user_id == int(user_id) and m.is_admin), None)
-            current_user_is_admin = bool(member)
+            member = next((m for m in group.members if m.user_id == int(user_id)), None)
+            current_user_is_member = bool(member)
+            current_user_is_admin = bool(member and member.is_admin)
         result.append({
             "id": group.id,
             "name": group.name,
             "description": group.description,
             "created_at": group.created_at,
             "member_count": len(group.members),
-            "current_user_is_admin": current_user_is_admin
+            "current_user_is_admin": current_user_is_admin,
+            "current_user_is_member": current_user_is_member
         })
     return jsonify(result), 200
 
