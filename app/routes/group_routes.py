@@ -93,7 +93,21 @@ def get_single_group(group_id):
     """Get detailed information about a specific group"""
     group = Group.query.get_or_404(group_id)
 
-    # Get all members with their details
+    # Get user info if JWT provided
+    from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+    except Exception:
+        user_id = None
+
+    current_user_is_admin = False
+    current_user_is_member = False
+    if user_id:
+        member = next((m for m in group.members if m.user_id == int(user_id)), None)
+        current_user_is_member = bool(member)
+        current_user_is_admin = bool(member and member.is_admin)
+
     members = []
     for member in group.members:
         members.append({
@@ -109,7 +123,9 @@ def get_single_group(group_id):
         "description": group.description,
         "created_at": group.created_at,
         "member_count": len(group.members),
-        "members": members
+        "members": members,
+        "current_user_is_member": current_user_is_member,
+        "current_user_is_admin": current_user_is_admin
     }), 200
 
 # ------------------ UPDATE GROUP ------------------ #
