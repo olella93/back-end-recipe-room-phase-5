@@ -91,10 +91,10 @@ def create_group():
 @group_bp.route('/groups/<int:group_id>', methods=['GET'])
 def get_single_group(group_id):
     """Get detailed information about a specific group"""
+    from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
     group = Group.query.get_or_404(group_id)
 
-    # Get user info if JWT provided
-    from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+    # Try to get current user id if JWT is present
     try:
         verify_jwt_in_request(optional=True)
         user_id = get_jwt_identity()
@@ -103,11 +103,12 @@ def get_single_group(group_id):
 
     current_user_is_admin = False
     current_user_is_member = False
-    if user_id:
-        member = next((m for m in group.members if m.user_id == int(user_id)), None)
+    if user_id is not None:
+        member = next((m for m in group.members if int(m.user_id) == int(user_id)), None)
         current_user_is_member = bool(member)
         current_user_is_admin = bool(member and member.is_admin)
 
+    # Get all members with their details
     members = []
     for member in group.members:
         members.append({
