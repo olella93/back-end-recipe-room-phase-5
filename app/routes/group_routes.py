@@ -14,16 +14,28 @@ def get_groups():
     """Get all groups with basic information"""
     groups = Group.query.all()
     
+    from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
     result = []
+    # Try to get current user id if JWT is present
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+    except Exception:
+        user_id = None
+
     for group in groups:
+        current_user_is_admin = False
+        if user_id:
+            member = next((m for m in group.members if m.user_id == int(user_id) and m.is_admin), None)
+            current_user_is_admin = bool(member)
         result.append({
             "id": group.id,
             "name": group.name,
             "description": group.description,
             "created_at": group.created_at,
-            "member_count": len(group.members)
+            "member_count": len(group.members),
+            "current_user_is_admin": current_user_is_admin
         })
-    
     return jsonify(result), 200
 
 # ------------------ CREATE GROUP ------------------ #
